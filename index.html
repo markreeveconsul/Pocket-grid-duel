@@ -17,6 +17,7 @@
     <section class="bezel" aria-label="Game screen">
       <div class="bezel-label"><span><i class="power-led" aria-hidden="true"></i> POWER</span><span>DOT MATRIX • 3 × 3</span></div>
       <div class="lcd">
+        <div id="boot" class="boot" aria-hidden="true"><span>GD / 03</span><strong>POCKET<br>CONSOLE</strong><small>SYSTEM READY</small></div>
         <div class="screen-top"><span id="modeLabel">SOLO / MEDIUM</span><span id="roundLabel">ROUND 01</span></div>
         <div class="score-strip" aria-label="Session scores">
           <div id="xScorePanel" class="score"><span id="xLabel">YOU / X</span><strong id="scoreX">00</strong></div>
@@ -36,7 +37,7 @@
             <button class="cell" data-index="8" aria-label="Row 3, column 3, empty"></button>
           </div>
           <svg class="win-overlay" viewBox="0 0 300 300" aria-hidden="true"><line id="winLine" pathLength="1"/></svg>
-          <div id="ready" class="ready"><strong>READY, PLAYER?</strong><span>Choose your setup.<br>Press START to play.</span></div>
+          <div id="ready" class="ready"><strong>PRESS START</strong><span>Choose your setup.<br>Press START to play.</span></div>
         </div>
         <div class="status-bar"><span class="status-dot" aria-hidden="true"></span><p id="status" role="status" aria-live="polite" aria-atomic="true">Waiting for start</p></div>
       </div>
@@ -44,20 +45,24 @@
     </section>
     <section class="controls" aria-label="Console controls">
       <details id="setup" class="setup" open>
-        <summary>GAME SETUP <span aria-hidden="true">+</span></summary>
+        <summary>GAME SETUP <small id="setupSummary"></small><span aria-hidden="true">+</span></summary>
         <div class="setup-fields">
           <label>PLAYERS<select id="mode"><option value="solo">1 player · vs CPU</option><option value="duo">2 players · local</option></select></label>
           <label>CPU LEVEL<select id="difficulty"><option value="easy">Easy</option><option value="medium" selected>Medium</option><option value="hard">Hard</option></select></label>
+          <label>YOUR MARK<select id="humanMark"><option value="X">X · opens first</option><option value="O">O · CPU opens</option></select></label>
+          <label>FORMAT<select id="format"><option value="endless">Endless rounds</option><option value="series">First to 3 wins</option></select></label>
         </div>
         <p class="setup-note">Changing setup starts a fresh session.</p>
       </details>
+      <div class="personalize"><div class="shell-picker" role="group" aria-label="Console shell color"><button class="swatch cream" data-shell="cream" aria-label="Cream shell" aria-pressed="true"></button><button class="swatch charcoal" data-shell="charcoal" aria-label="Charcoal shell" aria-pressed="false"></button><button class="swatch berry" data-shell="berry" aria-label="Berry shell" aria-pressed="false"></button><span>SHELL</span></div><button id="sound" class="sound-button" aria-pressed="false">SOUND OFF</button></div>
       <div class="button-row">
         <div class="reset-control"><button id="reset" class="utility-button">RESET SCORES</button><span>FRESH SESSION</span></div>
         <button id="start" class="start-button"><span id="startLabel">START</span><span class="button-arrow" aria-hidden="true">▶</span></button>
       </div>
+      <p id="nextStarter" class="next-starter"></p>
       <div class="bottom-row"><span class="edition">POCKET SERIES<br><b>NO. 001 — TIC-TAC-TOE</b></span><div class="speaker" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div></div>
     </section>
-    <details class="instructions"><summary>HOW TO PLAY</summary><p>Take turns placing X and O. Connect three across, down, or diagonally to win. A full board without a winner is a draw. Marks stay on the board until the next round.</p><p>In solo play you are X. Round starters alternate; the CPU may open the next round. Easy plays randomly, Medium wins or blocks when possible, and Hard plans ahead.</p><p>Use a mouse, touch, or Tab and Enter. Arrow keys move between board squares. Scores last until you reset, change setup, or close the page.</p></details>
+    <details class="instructions"><summary>HOW TO PLAY</summary><p>Take turns placing X and O. Connect three across, down, or diagonally to win. A full board without a winner is a draw. Marks stay on the board until the next round.</p><p>In solo play choose X or O. X opens the first round. Round starters alternate; the CPU may open the next round. Easy plays randomly, Medium wins or blocks when possible, and Hard plans ahead.</p><p>Use a mouse, touch, or Tab and Enter. Arrow keys move between board squares. First to 3 wins ends when either player earns three wins; draws do not count toward the target. Scores last until you reset, change game setup, or reload the page. Your preferences are remembered when browser storage is available. Shell and sound changes keep your scores.</p></details>
   </main>
   <footer class="desk-footer">A LITTLE FRIENDLY COMPETITION.</footer>
 </body>
