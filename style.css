@@ -1,103 +1,393 @@
-/* Study the sections in order: shell, screen, controls, responsive rules. */
-:root{color-scheme:light;--desk:#e7dfcd;--shell:#eee9dd;--ink:#39393c;--muted:#76716b;--plum:#733b51;--lcd:#adb98b;--lcd-ink:#344632;--lcd-line:#88976c;--mono:"Courier New",monospace;--sans:"Trebuchet MS",Arial,sans-serif}
-*{box-sizing:border-box}body{margin:0;min-height:100vh;padding:40px 18px 24px;color:var(--ink);font-family:var(--sans);background:radial-gradient(ellipse at 50% 30%,#f8f4e9 0,transparent 65%),var(--desk)}button,select,summary{-webkit-tap-highlight-color:transparent}button,select{font:inherit}button,summary,select{cursor:pointer}button:focus-visible,select:focus-visible,summary:focus-visible{outline:3px solid var(--plum);outline-offset:4px}button:disabled,select:disabled{cursor:default}.console{max-width:480px;margin:auto;padding:28px 27px 23px;border:1px solid #c6beaf;border-radius:19px 19px 66px 19px;background:linear-gradient(115deg,#f8f4e9 0%,var(--shell) 52%,#ddd5c5 100%);box-shadow:inset 2px 3px 0 #fff9,inset -3px -5px 0 #b8ae9b66,5px 12px 0 -4px #c5baa5,10px 24px 40px #5243332b;position:relative}.shell-header{display:flex;justify-content:space-between;align-items:center;margin:0 3px 20px;gap:12px}.eyebrow{margin:0 0 5px;font:700 9px var(--mono);letter-spacing:1.4px;color:var(--muted)}h1{font-style:italic;font-size:26px;letter-spacing:-1.2px;margin:0;font-weight:800}h1 span{font:10px var(--sans);vertical-align:top;display:inline-block;margin:5px 0 0 3px}.model{font:700 14px/1.1 var(--mono);color:var(--plum);border-left:2px solid #c5bcad;padding-left:11px;letter-spacing:1px}
-/* The recessed LCD uses one ink color, like a real handheld display. */
-.bezel{background:#474850;border-radius:11px 11px 36px 11px;padding:13px 19px 10px;box-shadow:inset 1px 2px 4px #1e202d80,0 2px 0 #fff9}.bezel-label{display:flex;justify-content:space-between;gap:8px;margin:0 0 11px;color:#d2cdd0;font:700 8px var(--mono);letter-spacing:1px;align-items:center}.bezel-label>span:first-child{display:flex;align-items:center;gap:6px}.power-led{height:5px;width:5px;background:#d46b74;border-radius:50%;box-shadow:0 0 4px #dc797a66}.lcd{position:relative;background:var(--lcd);padding:15px 16px 0;color:var(--lcd-ink);border:3px solid #292f2b;border-bottom-color:#646b53;box-shadow:inset 3px 4px 10px #28351b38;font-family:var(--mono)}.screen-top{display:flex;justify-content:space-between;gap:8px;font-size:9px;font-weight:bold;letter-spacing:.3px;border-bottom:1px solid var(--lcd-line);padding-bottom:9px}.score-strip{display:grid;grid-template-columns:1fr 1fr 1fr;text-align:center;padding:11px 0 12px;gap:6px}.score{border-bottom:2px solid transparent;padding-bottom:5px}.score.active{border-color:var(--lcd-ink)}.score>span{display:block;font-size:9px;font-weight:bold;letter-spacing:.5px}.score strong{display:block;font-size:29px;line-height:1.15;margin-top:4px;letter-spacing:1px}.score-draw{opacity:.65}.score-draw strong{font-size:22px;margin-top:8px}.play-area{position:relative;width:100%;aspect-ratio:1}.board{display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);width:100%;height:100%}.cell{display:flex;align-items:center;justify-content:center;position:relative;background:transparent;border:0;color:var(--lcd-ink);padding:18%;min-width:0;border-right:2px solid var(--lcd-line);border-bottom:2px solid var(--lcd-line)}.cell:nth-child(3n){border-right:0}.cell:nth-child(n+7){border-bottom:0}.cell:not(:disabled):hover{background:#34463212}.cell:focus-visible{outline:2px dashed var(--lcd-ink);outline-offset:-7px;z-index:2}.cell.winner{background:#34463218}.cell svg{width:100%;height:100%;overflow:visible;stroke:currentColor;stroke-width:9;fill:none;stroke-linecap:square;animation:place .15s ease-out}.cell[data-mark="O"] svg{stroke-width:8}.win-overlay{position:absolute;inset:0;height:100%;width:100%;pointer-events:none;overflow:visible}#winLine{stroke:var(--lcd-ink);stroke-width:4;stroke-linecap:round;opacity:0}#winLine.visible{opacity:.7;stroke-dasharray:1;animation:draw-line .22s ease-out}.ready{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:15px;text-align:center;background:var(--lcd);border:1px dashed var(--lcd-line);margin:3px}.ready[hidden]{display:none}.ready strong{font-size:17px;letter-spacing:-.5px}.ready span{font-size:12px;line-height:1.7}.status-bar{min-height:43px;display:flex;align-items:center;gap:8px;border-top:1px solid var(--lcd-line);margin-top:13px}.status-bar p{font-size:11px;font-weight:bold;line-height:1.4;margin:8px 0}.status-dot{flex:0 0 5px;height:5px;background:var(--lcd-ink)}.bezel-foot{text-align:center;color:#cac5ca;font:7px var(--mono);letter-spacing:1.5px;margin:11px 0 2px}
-/* Physical controls. Everything that looks like a button is interactive. */
-.controls{padding:20px 3px 0}.setup{border-top:1px solid #c8c0b1;border-bottom:1px solid #c8c0b1}.setup summary{list-style:none;display:flex;justify-content:space-between;padding:11px 0;font:700 10px var(--mono);letter-spacing:1px}.setup summary::-webkit-details-marker{display:none}.setup summary span{color:var(--plum);font-size:14px;line-height:10px}.setup[open] summary span{transform:rotate(45deg)}.setup-fields{display:grid;grid-template-columns:1.4fr 1fr;gap:12px;padding:3px 0 0}.setup label{font:700 9px var(--mono);letter-spacing:1px;color:var(--muted)}select{display:block;width:100%;margin-top:7px;border:1px solid #b7ad9e;border-radius:4px;background:#e3dccd;color:var(--ink);padding:9px 5px;font:12px var(--sans);min-height:36px;box-shadow:inset 0 1px 2px #6e635b20}select:disabled{opacity:.5}.setup-note{font-size:10px;color:var(--muted);margin:10px 0 13px}.button-row{display:flex;align-items:center;justify-content:space-between;gap:20px;margin:23px 0 25px}.reset-control{display:flex;flex-direction:column;align-items:center;gap:11px}.utility-button{border:1px solid #8f8a83;border-radius:20px;padding:8px 13px;background:linear-gradient(#bcb8b0,#a5a19a);box-shadow:0 3px 0 #77716c,0 4px 5px #39312c26;color:#292a2e;font:700 9px var(--mono);letter-spacing:.5px}.reset-control>span{font:8px var(--mono);letter-spacing:.7px;color:var(--muted)}.start-button{min-width:155px;min-height:51px;border:1px solid #57253b;border-radius:28px;color:#fff3eb;background:linear-gradient(#8f4c65,#70374e);box-shadow:0 5px 0 #4c2938,0 7px 8px #4e283a30,inset 0 2px 1px #ffffff30;padding:14px 19px;display:flex;justify-content:space-between;align-items:center;gap:12px;font:700 12px var(--mono);letter-spacing:.8px}.button-arrow{opacity:.7;font-size:13px}.start-button:hover{filter:brightness(1.07)}.start-button:active,.utility-button:active{transform:translateY(3px);box-shadow:0 1px 0 #4c2938}.bottom-row{display:flex;justify-content:space-between;align-items:center;gap:15px}.edition{font:8px/1.8 var(--mono);letter-spacing:1px;color:var(--muted)}.edition b{font-weight:normal;color:var(--ink)}.speaker{display:flex;gap:6px;transform:rotate(-20deg);padding:0 14px 0 0}.speaker i{width:5px;height:32px;border-radius:5px;background:#b9b1a4;box-shadow:inset 1px 1px 2px #625c5680,1px 1px #fff8}.instructions{margin:19px 3px 0;font-size:11px;max-width:330px;color:#605b56}.instructions summary{font:700 9px var(--mono);letter-spacing:.7px;width:fit-content}.instructions p{line-height:1.7}.desk-footer{text-align:center;font:9px var(--mono);letter-spacing:2px;color:#877c6c;margin:27px auto 0}
-@keyframes place{from{opacity:.2;transform:scale(.88)}to{opacity:1;transform:scale(1)}}@keyframes draw-line{from{stroke-dashoffset:1}to{stroke-dashoffset:0}}
-@media(max-width:420px){body{padding:18px 12px}.console{padding:22px 17px;border-bottom-right-radius:50px}.shell-header{margin-bottom:17px}h1{font-size:23px}.eyebrow{font-size:8px;letter-spacing:1px}.bezel{padding:12px 12px 10px}.lcd{padding:12px 12px 0}.bezel-label{font-size:7px;letter-spacing:.7px}.controls{padding-top:17px}.start-button{min-width:143px;font-size:11px;padding:13px 15px}.button-row{gap:10px}.utility-button{font-size:8px;padding:8px 10px}.screen-top{font-size:8px}.ready strong{font-size:15px}}
-@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;scroll-behavior:auto!important}}
 
-/* Static CRT scanlines stay inside the LCD and never intercept clicks. */
-.lcd { isolation: isolate; }
-.lcd::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: 5;
-  pointer-events: none;
-  background: repeating-linear-gradient(
-    to bottom,
-    transparent 0,
-    transparent 2px,
-    rgba(28, 43, 24, 0.13) 2px,
-    rgba(28, 43, 24, 0.13) 3px
-  );
-}
+    @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Cinzel:wght@600;800&display=swap');
 
-/* Pocket hardware revision 02: presentation stays separate from game rules. */
-.setup summary { gap: 8px; align-items: center; flex-wrap: wrap; }
-.setup summary small { margin-left: auto; font: 8px var(--mono); letter-spacing: 0; color: var(--muted); }
-.setup[open] summary small { display: none; }
-.setup summary > span { margin-left: auto; }
-.setup-fields { grid-template-columns: 1fr 1fr; row-gap: 12px; }
-.personalize { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-top:15px; }
-.shell-picker { display:flex; align-items:center; gap:9px; }
-.shell-picker > span { font:8px var(--mono); color:var(--muted); letter-spacing:1px; }
-.swatch { width:25px; height:25px; padding:0; border:3px solid var(--shell); border-radius:50%; box-shadow:0 0 0 1px #918779; }
-.swatch[aria-pressed="true"] { box-shadow:0 0 0 2px var(--plum); }
-.swatch.cream { background:#eee9dd; }.swatch.charcoal { background:#44454d; }.swatch.berry { background:#99455e; }
-.sound-button { background:transparent; border:1px solid #a69c8f; border-radius:4px; color:var(--ink); padding:9px; font:700 9px var(--mono); }
-.sound-button[aria-pressed="true"] { border-color:var(--plum); color:var(--plum); }
-.button-row { margin-bottom:14px; }
-.next-starter { min-height:25px; margin:0 0 15px; font:9px/1.5 var(--mono); letter-spacing:.2px; color:var(--muted); }
-.score { position:relative; }
-.score.active::before { content:'▶'; position:absolute; left:0; top:25px; font-size:9px; animation:turn-cursor 1.3s steps(1) infinite; }
-.cell.winner svg { animation:winner-blink .2s steps(1) 3; }
-.status-bar { min-height:49px; }
-.status-bar p.result-text { font-size:12px; letter-spacing:.4px; }
-.boot { position:absolute; inset:0; z-index:4; background:var(--lcd); color:var(--lcd-ink); display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:22px; pointer-events:none; animation:boot-on .82s ease both; }
-.boot[hidden] { display:none; }
-.boot span { font:10px var(--mono); letter-spacing:4px; border-bottom:2px solid var(--lcd-ink); padding-bottom:8px; }
-.boot strong { font:900 30px/1.05 var(--mono); letter-spacing:-2px; }
-.boot small { font:9px var(--mono); letter-spacing:2px; }
-body[data-shell="charcoal"] { --shell:#494a52; --ink:#f2ece2; --muted:#ccc7c4; --plum:#f1b2c3; }
-body[data-shell="charcoal"] .console { background:linear-gradient(115deg,#5d5e68,#44454d 65%,#35363d); border-color:#303139; box-shadow:inset 2px 3px 0 #ffffff22,inset -3px -5px 0 #0003,5px 12px 0 -4px #292a30,10px 24px 40px #302c3433; }
-body[data-shell="berry"] { --shell:#99455e; --ink:#fff2e8; --muted:#eed1cf; --plum:#ffe1b1; }
-body[data-shell="berry"] .console { background:linear-gradient(115deg,#b25c73,#99455e 60%,#783348); border-color:#733044; box-shadow:inset 2px 3px 0 #ffffff22,inset -3px -5px 0 #0003,5px 12px 0 -4px #692f43,10px 24px 40px #532f3933; }
-body:not([data-shell="cream"]) select { background:#ede6d8; color:#303039; }
-body:not([data-shell="cream"]) .instructions { color:var(--muted); }
-body:not([data-shell="cream"]) .setup { border-color:#ffffff35; }
-body:not([data-shell="cream"]) .sound-button { border-color:#ffffff60; }
-body:not([data-shell="cream"]) .speaker i { background:#0004; box-shadow:inset 1px 1px 2px #0005,1px 1px #ffffff20; }
-@keyframes turn-cursor { 0%,70%,100% { opacity:1; } 71%,99% { opacity:.35; } }
-@keyframes winner-blink { 0%,100% { opacity:1; } 50% { opacity:.35; } }
-@keyframes boot-on { 0% { opacity:0; } 20%,75% { opacity:1; } 100% { opacity:0; } }
-@media (max-width:360px) { .setup summary small { font-size:7px; }.shell-picker { gap:7px; }.shell-picker > span { display:none; } }
-@media (prefers-reduced-motion:reduce) { .score.active::before { animation:none; }.boot { display:none; } }
+    :root {
+      --console-bg: linear-gradient(135deg, #7c2d3c 0%, #581c25 50%, #3f1219 100%);
+      --console-shadow: 0 30px 60px rgba(0,0,0,0.8), inset 0 2px 6px rgba(255,255,255,0.2), inset 0 -6px 12px rgba(0,0,0,0.7);
+      --lcd-bg: #1c261e;
+      --lcd-border: #0a110c;
+      --lcd-text: #b6d8b2;
+      --lcd-green-bright: #34d399;
+      --lcd-amber: #fbbf24;
+    }
 
-/* LCD pages share the same screen footprint: no board behind the title. */
-[hidden] { display:none !important; }
-.lcd-page { position:absolute; inset:0; z-index:3; display:flex; align-items:center; justify-content:center; flex-direction:column; text-align:center; padding:24px 16px; background:var(--lcd); color:var(--lcd-ink); }
-.cartridge-label { font:700 9px var(--mono); letter-spacing:2px; border-bottom:2px solid var(--lcd-ink); padding-bottom:10px; }
-.lcd-page h2 { font:900 clamp(25px,7vw,35px)/.98 var(--mono); letter-spacing:-2px; margin:24px 0 15px; }
-.lcd-page p { font:10px/1.7 var(--mono); margin:12px 0; }
-.title-demo { display:flex; gap:9px; margin:8px 0; }
-.title-demo span { display:grid; place-items:center; width:44px; height:44px; border:2px solid var(--lcd-ink); font:700 34px/1 var(--mono); animation:demo-mark 3s steps(1) infinite; }
-.title-demo span:nth-child(2) { animation-delay:.3s; }.title-demo span:nth-child(3) { animation-delay:.6s; }
-.press-start { font:700 11px var(--mono); letter-spacing:2px; margin-top:17px; }
-.win-pips { display:flex !important; justify-content:center; gap:5px; margin-top:6px; min-height:0; }
-.win-pips:empty { display:none !important; }
-.win-pips i { width:7px; height:7px; border:1px solid var(--lcd-ink); }
-.win-pips i.filled { background:var(--lcd-ink); }
-.lcd-actions { display:flex; gap:9px; margin-top:18px; flex-wrap:wrap; justify-content:center; }
-.lcd-actions button { font:700 10px var(--mono); background:var(--lcd-ink); color:var(--lcd); padding:12px 10px; border:2px solid var(--lcd-ink); }
-.lcd-actions button + button { background:transparent; color:var(--lcd-ink); }
-.lcd-actions button:focus-visible { outline-color:var(--lcd-ink); }
-.match-page #finalScore { font-size:28px; font-weight:bold; border-block:1px solid var(--lcd-line); padding:12px 20px; }
-.play-tools { display:flex; gap:8px; margin-top:15px; }
-.play-tools button { flex:1; min-height:35px; }.play-tools button:disabled { opacity:.4; }
-.assist-note { font:9px/1.6 var(--mono); color:var(--muted); margin:8px 0 0; }
-.volume-label { display:flex; align-items:center; gap:7px; font:8px var(--mono); color:var(--muted); }
-.volume-label select { width:80px; margin:0; font-size:11px; }
-.cell.hinted::after { content:''; position:absolute; inset:9px; border:2px dashed var(--lcd-ink); pointer-events:none; }
-.leave-dialog { max-width:350px; width:calc(100% - 32px); padding:25px; border:3px solid #344632; border-radius:5px; background:#adb98b; color:#344632; font:12px/1.6 var(--mono); box-shadow:0 15px 60px #0005; }
-.leave-dialog::backdrop { background:#24282188; }
-.leave-dialog h2 { font-size:19px; line-height:1.3; margin:0 0 15px; }
-.leave-dialog>div { display:flex; flex-direction:column; gap:10px; margin-top:20px; }
-.leave-dialog button { border:2px solid #344632; padding:12px; background:#344632; color:#adb98b; font:700 11px var(--mono); }
-.leave-dialog button + button { background:transparent; color:#344632; }
-.leave-dialog button:focus-visible { outline-color:#344632; }
-@keyframes demo-mark { 0%,12% { opacity:.2; } 13%,85% { opacity:1; } 86%,100% { opacity:.2; } }
-@media(max-width:360px) { .lcd-page { padding:12px; }.lcd-page h2 { margin:18px 0 10px; }.title-demo span { width:35px; height:35px; font-size:28px; }.lcd-page p { margin:8px 0; }.volume-label { gap:4px; } }
+    * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+
+    body {
+      background: #0b0e14;
+      font-family: 'Share Tech Mono', monospace;
+      color: #e2e8f0;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Floating Neon PlayStation-Style Symbols Background */
+    .bg-symbol {
+      position: absolute;
+      font-family: 'Cinzel', serif;
+      font-weight: 800;
+      font-size: 28px;
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.65;
+      animation: floatSymbol 10s ease-in-out infinite alternate;
+    }
+
+    .sym-x { color: #00f0ff; text-shadow: 0 0 15px #00f0ff; top: 10%; left: 15%; animation-duration: 9s; }
+    .sym-o { color: #ff007f; text-shadow: 0 0 15px #ff007f; bottom: 15%; right: 12%; animation-duration: 12s; }
+    .sym-square { color: #39ff14; text-shadow: 0 0 15px #39ff14; top: 25%; right: 18%; animation-duration: 8s; }
+    .sym-triangle { color: #9d4edd; text-shadow: 0 0 15px #9d4edd; bottom: 20%; left: 18%; animation-duration: 11s; }
+    .sym-x2 { color: #ff007f; text-shadow: 0 0 15px #ff007f; top: 75%; left: 8%; animation-duration: 10s; }
+    .sym-o2 { color: #00f0ff; text-shadow: 0 0 15px #00f0ff; top: 12%; right: 25%; animation-duration: 13s; }
+
+    @keyframes floatSymbol {
+      0% { transform: translateY(0px) rotate(0deg) scale(1); }
+      50% { transform: translateY(-25px) rotate(15deg) scale(1.1); }
+      100% { transform: translateY(20px) rotate(-15deg) scale(0.95); }
+    }
+
+    /* Physical Handheld Console Shell */
+    .pocket-console {
+      width: 440px;
+      background: var(--console-bg);
+      border-radius: 36px;
+      box-shadow: var(--console-shadow);
+      border: 3px solid #993d4f;
+      display: flex;
+      flex-direction: column;
+      padding: 24px 20px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .console-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 12px;
+      padding: 0 4px;
+    }
+
+    .brand-title {
+      font-family: 'Cinzel', serif;
+      font-size: 18px;
+      font-weight: 800;
+      letter-spacing: 2px;
+      color: #f3c653;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+    }
+
+    .brand-model {
+      font-size: 11px;
+      color: rgba(255,255,255,0.5);
+      letter-spacing: 1px;
+    }
+
+    /* Recessed LCD Screen Bezel */
+    .lcd-bezel {
+      background: var(--lcd-border);
+      border-radius: 14px;
+      padding: 12px;
+      box-shadow: inset 0 4px 12px rgba(0,0,0,0.9), 0 2px 4px rgba(255,255,255,0.1);
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Actual LCD Display with CRT Scanlines */
+    .lcd-screen {
+      background-color: var(--lcd-bg);
+      background-image: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.35) 50%);
+      background-size: 100% 4px;
+      border-radius: 8px;
+      height: 380px;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow: hidden;
+      border: 2px solid #2a3a2d;
+      box-shadow: inset 0 0 30px rgba(0,0,0,0.8);
+      padding: 14px;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .lcd-screen::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle, rgba(0,0,0,0) 60%, rgba(0,0,0,0.65) 100%);
+      pointer-events: none;
+    }
+
+    .lcd-top-meta {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      color: var(--lcd-text);
+      letter-spacing: 1px;
+      border-bottom: 1px dashed rgba(182, 216, 178, 0.3);
+      padding-bottom: 6px;
+      z-index: 2;
+    }
+
+    .lcd-game-body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      z-index: 2;
+      width: 100%;
+    }
+
+    .game-subtitle {
+      font-size: 10px;
+      letter-spacing: 3px;
+      color: var(--lcd-text);
+      text-transform: uppercase;
+      text-align: center;
+    }
+
+    .game-title {
+      font-family: 'Cinzel', serif;
+      font-size: 24px;
+      font-weight: 800;
+      color: var(--lcd-text);
+      letter-spacing: 3px;
+      text-align: center;
+      text-shadow: 0 0 10px rgba(182, 216, 178, 0.4);
+    }
+
+    .tic-tac-toe-box {
+      border: 2px solid var(--lcd-text);
+      padding: 6px;
+      border-radius: 6px;
+      background: rgba(10, 17, 12, 0.6);
+      box-shadow: inset 0 0 15px rgba(0,0,0,0.8);
+      display: grid;
+      grid-template-columns: repeat(3, 68px);
+      grid-template-rows: repeat(3, 68px);
+      gap: 5px;
+    }
+
+    .ttt-cell {
+      background: rgba(28, 38, 30, 0.9);
+      border: 1px solid rgba(182, 216, 178, 0.4);
+      border-radius: 4px;
+      font-family: 'Cinzel', serif;
+      font-size: 28px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: var(--lcd-text);
+      transition: background 0.15s, border-color 0.15s;
+    }
+
+    .ttt-cell:hover {
+      background: rgba(45, 61, 48, 0.9);
+      border-color: var(--lcd-green-bright);
+    }
+
+    .ttt-cell.x-mark { color: var(--lcd-green-bright); text-shadow: 0 0 8px rgba(52, 211, 153, 0.5); }
+    .ttt-cell.o-mark { color: var(--lcd-amber); text-shadow: 0 0 8px rgba(251, 191, 36, 0.5); }
+
+    .status-message {
+      font-size: 11px;
+      color: var(--lcd-text);
+      text-align: center;
+      letter-spacing: 1px;
+      min-height: 16px;
+    }
+
+    .score-board {
+      display: flex;
+      gap: 16px;
+      font-size: 10px;
+      color: var(--lcd-text);
+      border-top: 1px dashed rgba(182, 216, 178, 0.3);
+      padding-top: 6px;
+      width: 100%;
+      justify-content: center;
+      z-index: 2;
+    }
+
+    .score-item span {
+      color: var(--lcd-green-bright);
+      font-weight: bold;
+    }
+
+    /* Modal Screens inside LCD */
+    .lcd-modal {
+      position: absolute;
+      inset: 0;
+      background: rgba(17, 26, 20, 0.96);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 10;
+      padding: 16px;
+      text-align: center;
+      gap: 10px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s;
+    }
+
+    .lcd-modal.active {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .lcd-modal-title {
+      font-family: 'Cinzel', serif;
+      font-size: 20px;
+      color: var(--lcd-green-bright);
+      letter-spacing: 2px;
+    }
+
+    .lcd-modal-text {
+      font-size: 11px;
+      color: var(--lcd-text);
+      line-height: 1.4;
+      max-width: 240px;
+    }
+
+    .lcd-btn {
+      background: var(--lcd-green-bright);
+      color: #000;
+      font-family: 'Share Tech Mono', monospace;
+      font-weight: bold;
+      padding: 7px 20px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 11px;
+      box-shadow: 0 0 10px rgba(52, 211, 153, 0.4);
+      margin-top: 4px;
+    }
+    .lcd-btn:hover { background: #6ee7b7; }
+
+    /* Physical Console Hardware Controls */
+    .console-controls {
+      margin-top: 18px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 6px;
+    }
+
+    .dpad-container {
+      width: 80px;
+      height: 80px;
+      position: relative;
+    }
+
+    .dpad-btn {
+      position: absolute;
+      background: #2a0c12;
+      border: 2px solid #551924;
+      color: #f3c653;
+      font-size: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 3px 6px rgba(0,0,0,0.5);
+    }
+
+    .dpad-center { width: 26px; height: 26px; top: 27px; left: 27px; background: #20090e; }
+    .dpad-up { width: 26px; height: 27px; top: 0; left: 27px; border-radius: 3px 3px 0 0; }
+    .dpad-down { width: 26px; height: 27px; bottom: 0; left: 27px; border-radius: 0 0 3px 3px; }
+    .dpad-left { width: 27px; height: 26px; top: 27px; left: 0; border-radius: 3px 0 0 3px; }
+    .dpad-right { width: 27px; height: 26px; top: 27px; right: 0; border-radius: 0 3px 3px 3px; }
+
+    .action-buttons-group {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .hardware-btn {
+      background: linear-gradient(145deg, #a83246, #7a1d2e);
+      border: 2px solid #d45d73;
+      color: #fff;
+      font-family: 'Cinzel', serif;
+      font-weight: 800;
+      font-size: 11px;
+      padding: 10px 16px;
+      border-radius: 20px;
+      cursor: pointer;
+      box-shadow: 0 5px 12px rgba(0,0,0,0.6), inset 0 2px 4px rgba(255,255,255,0.3);
+      transition: transform 0.1s, box-shadow 0.1s;
+    }
+    .hardware-btn:active {
+      transform: translateY(2px);
+      box-shadow: 0 2px 5px rgba(0,0,0,0.6);
+    }
+
+    .speaker-grille {
+      display: flex;
+      gap: 4px;
+      position: absolute;
+      bottom: 18px;
+      right: 24px;
+    }
+    .speaker-slot {
+      width: 3px;
+      height: 30px;
+      background: #331016;
+      border-radius: 2px;
+      box-shadow: inset 0 1px 3px rgba(0,0,0,0.8);
+    }
+  
+/* Existing gameplay controls adapted to the supplied console design. */
+[hidden]{display:none!important}
+body{overflow:auto;padding:28px 12px;flex-direction:column}
+button,select,summary{font:inherit}button,select,summary{cursor:pointer}button:disabled{cursor:default;opacity:.4}button:focus-visible,select:focus-visible,summary:focus-visible{outline:2px solid #fbbf24;outline-offset:3px}
+.background-symbols{position:fixed;inset:0;pointer-events:none;overflow:hidden}
+.pocket-console{max-width:100%;flex-shrink:0;padding-bottom:48px}
+.brand-title{margin:0}.lcd-screen{isolation:isolate;padding:12px 14px}
+.lcd-screen::after{z-index:15;background:linear-gradient(transparent 50%,#0003 50%),radial-gradient(circle,transparent 60%,#0008 100%);background-size:100% 4px,100% 100%}
+#gameScreen{width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:space-between;gap:3px}
+.screen-top{width:100%;display:flex;justify-content:space-between;color:var(--lcd-text);font-size:10px;letter-spacing:.4px;border-bottom:1px dashed #b6d8b24d;padding-bottom:6px}
+.lcd-game-heading{text-align:center}.game-subtitle{font-size:8px;letter-spacing:2px}.game-title{font-size:21px;line-height:1.2}
+.play-area{position:relative;width:230px;height:230px;flex-shrink:0;max-width:100%}
+.board{border:2px solid var(--lcd-text);padding:6px;border-radius:6px;background:#0a110c99;box-shadow:inset 0 0 15px #000c;display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);gap:5px;width:100%;height:100%}
+.cell{min-width:0;min-height:0;background:#1c261ee6;border:1px solid #b6d8b266;border-radius:4px;font-family:'Cinzel',serif;font-size:28px;font-weight:800;display:flex;align-items:center;justify-content:center;color:var(--lcd-text);transition:background .15s,border-color .15s;position:relative}
+.cell:disabled{opacity:1}.cell:not(:disabled):hover{background:#2d3d30e6;border-color:var(--lcd-green-bright)}
+.cell[data-mark="X"]{color:var(--lcd-green-bright);text-shadow:0 0 8px #34d39980}.cell[data-mark="O"]{color:var(--lcd-amber);text-shadow:0 0 8px #fbbf2480}
+.cell.pad-selected:not(:disabled){border-color:var(--lcd-green-bright);box-shadow:inset 0 0 0 1px #34d39955}.cell.hinted::after{content:'';position:absolute;inset:6px;border:2px dashed var(--lcd-amber);pointer-events:none}
+.cell.winner{animation:winner-blink .2s steps(1) 3;background:#2d3d30}
+.win-overlay{position:absolute;inset:8px;width:calc(100% - 16px);height:calc(100% - 16px);pointer-events:none}#winLine{stroke:var(--lcd-text);stroke-width:3;opacity:0}#winLine.visible{opacity:.7;stroke-dasharray:1;animation:draw-line .22s ease-out}
+.status-bar{min-height:16px;width:100%;text-align:center;color:var(--lcd-text);font-size:11px;letter-spacing:.4px}.status-dot{display:none}.status-bar p{margin:0}.result-text{color:var(--lcd-green-bright)}
+.score-strip{display:flex;gap:14px;color:var(--lcd-text);border-top:1px dashed #b6d8b24d;padding-top:6px;justify-content:center;width:100%;font-size:9px}
+.score{position:relative;text-align:center}.score>span:not(.win-pips){display:inline}.score strong{font-size:10px;color:var(--lcd-green-bright);margin-left:3px}.score.active::before{content:'▸';position:absolute;left:-8px;animation:turn-cursor 1.3s steps(1) infinite}
+.win-pips{display:flex;gap:3px;justify-content:center;margin-top:3px}.win-pips:empty{display:none}.win-pips i{width:5px;height:5px;border:1px solid var(--lcd-text)}.win-pips i.filled{background:var(--lcd-green-bright)}
+.lcd-page,.ready,.boot{position:absolute;inset:0;background:#111a14;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:16px;gap:10px;color:var(--lcd-text);z-index:10}
+.lcd-page h2{font-family:'Cinzel',serif;font-size:20px;color:var(--lcd-green-bright);letter-spacing:2px}.lcd-page p{font-size:11px;line-height:1.4;max-width:240px}.lcd-page .cartridge-label{font-size:10px;letter-spacing:2px}.lcd-page #finalScore{font-size:28px;color:var(--lcd-amber);margin:12px 0}
+.lcd-actions{display:flex;gap:10px;margin-top:8px}.lcd-actions button{background:var(--lcd-green-bright);color:#000;font-weight:bold;padding:8px 15px;border:0;border-radius:4px;font-size:11px;box-shadow:0 0 10px #34d39966}.lcd-actions button+button{background:transparent;border:1px solid var(--lcd-text);color:var(--lcd-text)}
+.ready{z-index:2;border:1px dashed #b6d8b244;border-radius:6px}.ready strong{font-size:14px}.ready span{font-size:11px;line-height:1.6}.boot{z-index:12;pointer-events:none;animation:boot-on .82s ease both}.boot strong{font-family:'Cinzel',serif;font-size:24px;color:var(--lcd-green-bright)}.boot span,.boot small{font-size:10px;letter-spacing:2px}
+.controls{margin-top:8px}.setup{background:#180c10aa;border:1px solid #d45d7355;border-radius:8px;margin:10px 0;padding:0 12px;color:#ecd6d9}.setup summary{list-style:none;font-size:11px;display:flex;gap:8px;align-items:center;padding:12px 0}.setup summary::-webkit-details-marker{display:none}.setup summary small{margin-left:auto;font-size:9px;opacity:.65}.setup[open] summary small{display:none}.setup summary>span{margin-left:auto}.setup-fields{display:grid;grid-template-columns:1fr 1fr;gap:12px}.setup label{font-size:10px;color:#e3b7bf;letter-spacing:.6px}select{display:block;width:100%;padding:8px 6px;margin-top:5px;background:#1b1116;border:1px solid #993d4f;border-radius:4px;color:#f9e7e7;font-size:12px}select:disabled{opacity:.5}.setup-note{font-size:10px;line-height:1.5;color:#d8a7b1;margin:10px 0 12px}
+.personalize{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:14px 0}.shell-picker{display:flex;align-items:center;gap:8px}.shell-picker>span{font-size:9px;color:#e3b7bf}.swatch{width:22px;height:22px;border-radius:50%;border:3px solid #331016;box-shadow:0 0 0 1px #a56b77}.swatch[aria-pressed="true"]{box-shadow:0 0 0 2px #f3c653}.swatch.cream{background:#eee9dd}.swatch.charcoal{background:#44454d}.swatch.berry{background:#7c2d3c}.volume-label{display:flex;align-items:center;gap:6px}.volume-label select{width:80px;margin:0}
+.sound-button{background:transparent;color:#e3b7bf;border:1px solid #993d4f;border-radius:4px;padding:7px 11px;font-size:10px}.play-tools{display:flex;justify-content:center;gap:9px;margin-top:12px}.play-tools button{min-width:58px}.assist-note{font-size:9px;color:#d8a7b1;text-align:center;line-height:1.4;margin-top:7px}.next-starter{font-size:9px;line-height:1.4;color:#e3b7bf;text-align:center;margin:8px 0 0}.reset-option{font-size:9px}
+.instructions{font-size:10px;color:#ddb7be;margin:12px 4px 0}.instructions summary{font-size:9px;letter-spacing:1px;width:fit-content}.instructions p{line-height:1.6;margin:9px 0;user-select:text}
+.dpad-center{border:0;box-shadow:none;color:#ad6b79;font-size:8px}.dpad-btn:active{filter:brightness(1.4)}.hardware-btn{white-space:nowrap;min-height:38px}#start{min-width:99px}.speaker-grille{bottom:12px}.speaker-slot{height:22px}
+body[data-shell="cream"] .pocket-console{--console-bg:linear-gradient(135deg,#f5eedf,#d9ceba);border-color:#b8a98c}body[data-shell="cream"] .brand-title{color:#6b3543;text-shadow:none}body[data-shell="cream"] .brand-model,body[data-shell="cream"] .instructions,body[data-shell="cream"] .next-starter,body[data-shell="cream"] .assist-note{color:#6b4c50}body[data-shell="cream"] .play-tools button{color:#6b3543}
+body[data-shell="charcoal"] .pocket-console{--console-bg:linear-gradient(135deg,#51515b,#2d2b34 50%,#1e1c24);border-color:#69616d}
+.leave-dialog{max-width:350px;width:calc(100% - 32px);padding:24px;border:2px solid #b6d8b2;border-radius:8px;background:#111a14;color:var(--lcd-text);font-size:12px;line-height:1.6}.leave-dialog::backdrop{background:#0009}.leave-dialog h2{font-family:'Cinzel',serif;font-size:20px;color:var(--lcd-green-bright);margin-bottom:12px}.leave-dialog>div{display:flex;flex-direction:column;gap:9px;margin-top:18px}.leave-dialog button{padding:11px;background:var(--lcd-green-bright);border:1px solid var(--lcd-green-bright);border-radius:4px;font-size:11px}.leave-dialog button+button{background:transparent;color:var(--lcd-text)}
+@keyframes winner-blink{50%{opacity:.35}}@keyframes turn-cursor{70%{opacity:.35}}@keyframes draw-line{from{stroke-dashoffset:1}to{stroke-dashoffset:0}}@keyframes boot-on{0%,100%{opacity:0}20%,75%{opacity:1}}
+@media(max-width:400px){.pocket-console{padding:20px 13px 43px;border-radius:28px}.brand-title{font-size:15px;letter-spacing:1px}.lcd-bezel{padding:9px}.lcd-screen{padding:12px 8px}.game-title{font-size:19px}.play-area{width:214px;height:214px}.console-controls{padding:0;gap:8px}.action-buttons-group{gap:6px}.hardware-btn{padding:10px 12px;font-size:10px}#start{min-width:87px}.score-strip{gap:10px;font-size:8px}.dpad-container{flex-shrink:0}.setup-fields{gap:10px}.shell-picker>span{display:none}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}.boot{display:none}}
+
+/* The hardware SETUP button opens the options drawer. */
+.setup:not([open]) { display:none; }

@@ -76,14 +76,18 @@ const Rules = (() => {
 // 3. PREFERENCES AND AUDIO: optional, local, and independent of the rules.
 const $ = id => document.getElementById(id);
 const cells = [...document.querySelectorAll('.cell')];
-const defaults = {mode:'solo', difficulty:'medium', humanMark:'X', format:'endless', shell:'cream', sound:false, volume:'low'};
+const defaults = {mode:'solo', difficulty:'medium', humanMark:'X', format:'endless', shell:'berry', sound:false, volume:'low'};
 const choices = {mode:['solo','duo'], difficulty:['easy','medium','hard'], humanMark:['X','O'], format:['endless','series'], shell:['cream','charcoal','berry'], volume:['low','normal']};
 let preferences = {...defaults};
+let referenceShellChosen = false;
 try {
   const saved = JSON.parse(localStorage.getItem('pocket-console-v1'));
+  referenceShellChosen = saved?.referenceDesign === true;
   for (const key of Object.keys(choices)) if (choices[key].includes(saved?.[key])) preferences[key] = saved[key];
   if (typeof saved?.sound === 'boolean') preferences.sound = saved.sound;
 } catch { /* Private browsing or unavailable storage must not prevent play. */ }
+if (!referenceShellChosen) preferences.shell = 'berry';
+preferences.referenceDesign = true;
 function savePreferences() {
   try { localStorage.setItem('pocket-console-v1', JSON.stringify(preferences)); } catch {}
 }
@@ -129,14 +133,12 @@ function applyAppearance() {
 
 // 4. CONTROLLER: the round and optional first-to-three session.
 const scores = new Rules.ScoreBoard();
-const icons = {
-  X: '<svg viewBox="0 0 60 60" aria-hidden="true"><path d="M10 10L50 50M50 10L10 50"/></svg>',
-  O: '<svg viewBox="0 0 60 60" aria-hidden="true"><circle cx="30" cy="30" r="23"/></svg>'
-};
+const icons = { X: 'X', O: 'O' };
 let board = Array(9).fill(''), turn = 'X', starter = 'X', round = 1;
 let phase = 'ready';
 let screen = 'title', leaving = false, hintIndex = null, hintTimer = null;
 let history = [];
+let selectedCell = 4;
 const paused = () => screen !== 'game' || $('setup').open || leaving;
 function clearHint() { clearTimeout(hintTimer); hintTimer = null; hintIndex = null; }
 let aiTimer = null, resultTimer = null, revision = 0, resultRevealed = false;
@@ -146,11 +148,13 @@ const nameOf = mark => preferences.mode === 'duo' ? `Player ${mark}` : mark === 
 function cancelAI() { clearTimeout(aiTimer); aiTimer = null; revision += 1; }
 function clearRoundFeedback() { clearTimeout(resultTimer); resultTimer = null; resultRevealed = false; clearHint(); stopSound(); }
 function render() {
+  if (board[selectedCell]) selectedCell = Rules.empty(board)[0] ?? 4;
   const outcome = Rules.result(board), solo = preferences.mode === 'solo', matchWinner = champion();
   cells.forEach((cell, index) => {
     const mark = board[index];
     if (cell.dataset.mark !== mark) { cell.innerHTML = icons[mark] || ''; cell.dataset.mark = mark; }
     cell.disabled = phase !== 'playing' || paused() || Boolean(mark) || isComputerTurn();
+    cell.classList.toggle('pad-selected', phase === 'playing' && !paused() && !isComputerTurn() && selectedCell === index && !mark);
     cell.classList.toggle('hinted', hintIndex === index);
     cell.classList.toggle('winner', Boolean(outcome.line?.includes(index)));
     cell.setAttribute('aria-label', `Row ${Math.floor(index / 3) + 1}, column ${index % 3 + 1}, ${mark || 'empty'}${outcome.line?.includes(index) ? ', winning square' : ''}`);
@@ -190,7 +194,9 @@ function render() {
   $('gameScreen').inert = screen === 'title' || showMatch;
   $('setup').hidden = screen === 'title';
   $('reset').disabled = screen === 'title';
+  for (const id of ['padUp','padDown','padLeft','padRight','padPlace']) $(id).disabled = phase !== 'playing' || paused() || isComputerTurn();
   $('playTools').hidden = screen === 'title';
+  $('nextStarter').hidden = screen === 'title';
   $('assistNote').hidden = screen === 'title';
   $('hint').disabled = !solo || phase !== 'playing' || paused() || isComputerTurn();
   $('undo').disabled = !solo || preferences.format !== 'endless' || !history.length || paused();
@@ -222,6 +228,7 @@ function makeMove(index) {
   const next = Rules.place(board, index, turn);
   if (!next) return;
   if (!isComputerTurn() && preferences.mode === 'solo') history.push({board:[...board], turn});
+  selectedCell = index;
   clearHint();
   board = next;
   const outcome = Rules.result(board);
@@ -332,7 +339,22 @@ $('matchSetup').addEventListener('click', () => { freshSession(); $('mode').focu
 document.addEventListener('visibilitychange', () => {
   if (document.hidden) { cancelAI(); stopSound(); } else scheduleAI();
 });
-applyAppearance(); render();
+savePreferences(); applyAppearance(); render();
 // A one-time, non-blocking boot screen. Reduced motion skips the sequence.
 if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) $('boot').hidden = true;
 else setTimeout(() => { $('boot').hidden = true; }, 820);
+
+// Physical controls from the reference interface use the existing controller.
+$('titleStart').addEventListener('click', () => $('start').click());
+$('hardwareSetup').addEventListener('click', () => {
+  if (screen === 'title') { freshSession(); $('mode').focus(); }
+  else { $('setup').open = !$('setup').open; if ($('setup').open) { cancelAI(); clearHint(); stopSound(); } render(); scheduleAI(); }
+});
+for (const [id, delta] of [['padUp',-3],['padDown',3],['padLeft',-1],['padRight',1]]) {
+  $(id).addEventListener('click', () => {
+    if ($(id).disabled) return;
+    for (let count=0; count<9; count++) { selectedCell = (selectedCell + delta + 9) % 9; if (!board[selectedCell]) break; }
+    render();
+  });
+}
+$('padPlace').addEventListener('click', () => { if (!$('padPlace').disabled) { unlockAudio(); makeMove(selectedCell); } });
