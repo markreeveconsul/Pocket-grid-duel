@@ -76,8 +76,8 @@ const Rules = (() => {
 // 3. PREFERENCES AND AUDIO: optional, local, and independent of the rules.
 const $ = id => document.getElementById(id);
 const cells = [...document.querySelectorAll('.cell')];
-const defaults = {mode:'solo', difficulty:'medium', humanMark:'X', format:'endless', shell:'cream', sound:false};
-const choices = {mode:['solo','duo'], difficulty:['easy','medium','hard'], humanMark:['X','O'], format:['endless','series'], shell:['cream','charcoal','berry']};
+const defaults = {mode:'solo', difficulty:'medium', humanMark:'X', format:'endless', shell:'cream', sound:false, volume:'low'};
+const choices = {mode:['solo','duo'], difficulty:['easy','medium','hard'], humanMark:['X','O'], format:['endless','series'], shell:['cream','charcoal','berry'], volume:['low','normal']};
 let preferences = {...defaults};
 try {
   const saved = JSON.parse(localStorage.getItem('pocket-console-v1'));
@@ -111,7 +111,7 @@ function sound(kind) {
     const time = audio.currentTime + index * .11;
     oscillator.type = 'square'; oscillator.frequency.value = frequency;
     gain.gain.setValueAtTime(0, time);
-    gain.gain.linearRampToValueAtTime(.025, time + .006);
+    gain.gain.linearRampToValueAtTime(preferences.volume === 'low' ? .012 : .025, time + .006);
     gain.gain.exponentialRampToValueAtTime(.0001, time + .085);
     oscillator.connect(gain); gain.connect(audio.destination);
     voices.add(oscillator);
@@ -124,8 +124,7 @@ function applyAppearance() {
   document.querySelectorAll('[data-shell]').forEach(button => {
     if (button.tagName === 'BUTTON') button.setAttribute('aria-pressed', String(button.dataset.shell === preferences.shell));
   });
-  $('sound').textContent = preferences.sound ? 'SOUND ON' : 'SOUND OFF';
-  $('sound').setAttribute('aria-pressed', String(preferences.sound));
+  $('volume').value = preferences.sound ? preferences.volume : 'off';
 }
 
 // 4. CONTROLLER: the round and optional first-to-three session.
@@ -136,25 +135,32 @@ const icons = {
 };
 let board = Array(9).fill(''), turn = 'X', starter = 'X', round = 1;
 let phase = 'ready';
+let screen = 'title', leaving = false, hintIndex = null, hintTimer = null;
+let history = [];
+const paused = () => screen !== 'game' || $('setup').open || leaving;
+function clearHint() { clearTimeout(hintTimer); hintTimer = null; hintIndex = null; }
 let aiTimer = null, resultTimer = null, revision = 0, resultRevealed = false;
 const isComputerTurn = () => preferences.mode === 'solo' && turn !== preferences.humanMark;
 const champion = () => preferences.format === 'series' ? ['X','O'].find(mark => scores[mark] >= 3) : null;
 const nameOf = mark => preferences.mode === 'duo' ? `Player ${mark}` : mark === preferences.humanMark ? 'You' : 'CPU';
 function cancelAI() { clearTimeout(aiTimer); aiTimer = null; revision += 1; }
-function clearRoundFeedback() { clearTimeout(resultTimer); resultTimer = null; resultRevealed = false; stopSound(); }
+function clearRoundFeedback() { clearTimeout(resultTimer); resultTimer = null; resultRevealed = false; clearHint(); stopSound(); }
 function render() {
   const outcome = Rules.result(board), solo = preferences.mode === 'solo', matchWinner = champion();
   cells.forEach((cell, index) => {
     const mark = board[index];
     if (cell.dataset.mark !== mark) { cell.innerHTML = icons[mark] || ''; cell.dataset.mark = mark; }
-    cell.disabled = phase !== 'playing' || Boolean(mark) || isComputerTurn();
+    cell.disabled = phase !== 'playing' || paused() || Boolean(mark) || isComputerTurn();
+    cell.classList.toggle('hinted', hintIndex === index);
     cell.classList.toggle('winner', Boolean(outcome.line?.includes(index)));
     cell.setAttribute('aria-label', `Row ${Math.floor(index / 3) + 1}, column ${index % 3 + 1}, ${mark || 'empty'}${outcome.line?.includes(index) ? ', winning square' : ''}`);
   });
   for (const mark of ['X','O']) {
     $('score'+mark).textContent = String(scores[mark]).padStart(2, '0');
+    $('pips'+mark).innerHTML = preferences.format === 'series' ? [0,1,2].map(i => `<i class="${i < scores[mark] ? 'filled' : ''}"></i>`).join('') : '';
+    $('score'+mark).setAttribute('aria-label', `${mark}: ${scores[mark]} wins${preferences.format === 'series' ? ' out of 3 needed' : ''}`);
     $(mark.toLowerCase()+'Label').textContent = solo ? `${mark === preferences.humanMark ? 'YOU' : 'CPU'} / ${mark}` : `PLAYER ${mark}`;
-    $(mark.toLowerCase()+'ScorePanel').classList.toggle('active', phase === 'playing' && turn === mark);
+    $(mark.toLowerCase()+'ScorePanel').classList.toggle('active', phase === 'playing' && !paused() && turn === mark);
   }
   $('scoreDraw').textContent = String(scores.draws).padStart(2, '0');
   $('difficulty').disabled = $('humanMark').disabled = !solo;
@@ -162,19 +168,38 @@ function render() {
   $('roundLabel').textContent = preferences.format === 'series' ? 'FIRST TO 3' : `ROUND ${String(round).padStart(2, '0')}`;
   $('setupSummary').textContent = `${solo ? '1P · '+preferences.difficulty.toUpperCase() : '2P'} · ${preferences.format === 'series' ? 'FIRST TO 3' : 'ENDLESS'}`;
   $('ready').hidden = phase !== 'ready';
-  $('startLabel').textContent = phase === 'ready' ? 'START' : matchWinner ? 'NEW MATCH' : phase === 'finished' ? 'NEXT ROUND' : 'RESTART';
-  $('start').setAttribute('aria-label', phase === 'playing' ? 'Restart this round' : $('startLabel').textContent);
+  $('startLabel').textContent = screen === 'title' ? 'START' : phase === 'ready' ? 'PLAY' : matchWinner ? 'REMATCH' : phase === 'finished' ? 'NEXT ROUND' : paused() ? 'RESUME' : 'RESTART';
+  $('start').setAttribute('aria-label', phase === 'playing' && !paused() ? 'Restart this round' : $('startLabel').textContent);
   let message;
   if (phase === 'ready') message = 'Waiting for start';
   else if (phase === 'finished' && !resultRevealed) message = outcome.draw ? 'Board full…' : 'Three in a row!';
   else if (matchWinner) message = `${nameOf(matchWinner).toUpperCase()} ${nameOf(matchWinner) === 'You' ? 'WIN' : 'WINS'} THE MATCH!`;
   else if (outcome.winner) message = `${nameOf(outcome.winner).toUpperCase()} ${nameOf(outcome.winner) === 'You' ? 'WIN' : 'WINS'}!`;
   else if (outcome.draw) message = 'DRAW — WELL MATCHED!';
+  else if (paused()) message = 'PAUSED — close setup to resume';
+  else if (hintIndex !== null) message = `Try row ${Math.floor(hintIndex/3)+1}, column ${hintIndex%3+1}`;
   else message = isComputerTurn() ? 'CPU is thinking…' : solo ? `Your turn — place ${turn}` : `Player ${turn} — your turn`;
   $('status').textContent = message;
   $('status').classList.toggle('result-text', phase === 'finished' && resultRevealed);
   const next = phase === 'finished' ? Rules.other(starter) : starter;
   $('nextStarter').textContent = matchWinner ? 'Match complete · NEW MATCH resets scores' : phase === 'finished' ? `NEXT ROUND · ${nameOf(next)} ${next === preferences.humanMark && solo ? 'start' : 'starts'} (${next})` : phase === 'ready' ? `OPENING TURN · ${nameOf('X')} (X)` : `ROUND ${round} · ${preferences.format === 'series' ? 'FIRST TO 3 WINS' : 'ENDLESS PLAY'}`;
+  const showMatch = Boolean(screen === 'game' && matchWinner && resultRevealed && !$('setup').open);
+  $('titleScreen').hidden = screen !== 'title';
+  $('matchScreen').hidden = !showMatch;
+  $('gameScreen').style.visibility = screen === 'title' || showMatch ? 'hidden' : 'visible';
+  $('gameScreen').inert = screen === 'title' || showMatch;
+  $('setup').hidden = screen === 'title';
+  $('reset').disabled = screen === 'title';
+  $('playTools').hidden = screen === 'title';
+  $('assistNote').hidden = screen === 'title';
+  $('hint').disabled = !solo || phase !== 'playing' || paused() || isComputerTurn();
+  $('undo').disabled = !solo || preferences.format !== 'endless' || !history.length || paused();
+  $('assistNote').textContent = solo ? preferences.format === 'series' ? 'Hints available on your turn · Undo off in matches' : 'Practice tools · Undo takes back your turn + CPU reply' : 'Local play · Learning tools are solo only';
+  if (showMatch) {
+    $('matchWinner').textContent = nameOf(matchWinner) === 'You' ? 'YOU WIN!' : nameOf(matchWinner).toUpperCase() + ' WINS!';
+    $('finalScore').textContent = 'X ' + scores.X + ' : ' + scores.O + ' O';
+    $('matchDetail').textContent = round + ' rounds · ' + scores.draws + ' draws';
+  }
   const line = $('winLine');
   if (outcome.line) {
     const first = outcome.line[0], last = outcome.line[2];
@@ -184,7 +209,7 @@ function render() {
   line.classList.toggle('visible', Boolean(outcome.line));
 }
 function scheduleAI() {
-  if (phase !== 'playing' || !isComputerTurn() || document.hidden || aiTimer !== null) return;
+  if (phase !== 'playing' || paused() || !isComputerTurn() || document.hidden || aiTimer !== null) return;
   const ticket = revision;
   aiTimer = setTimeout(() => {
     aiTimer = null;
@@ -193,16 +218,18 @@ function scheduleAI() {
   }, 420);
 }
 function makeMove(index) {
-  if (phase !== 'playing') return;
+  if (phase !== 'playing' || paused()) return;
   const next = Rules.place(board, index, turn);
   if (!next) return;
+  if (!isComputerTurn() && preferences.mode === 'solo') history.push({board:[...board], turn});
+  clearHint();
   board = next;
   const outcome = Rules.result(board);
   if (outcome.winner || outcome.draw) {
     phase = 'finished'; scores.record(outcome);
     sound(outcome.draw ? 'draw' : preferences.mode === 'solo' && outcome.winner !== preferences.humanMark ? 'lose' : 'win');
     // This timeout is cancelled by every reset; it never modifies the board.
-    resultTimer = setTimeout(() => { resultTimer = null; resultRevealed = true; render(); }, 620);
+    resultTimer = setTimeout(() => { resultTimer = null; resultRevealed = true; render(); if (!$('matchScreen').hidden) $('rematch').focus({preventScroll:true}); }, 620);
     console.log(`Round ${round}: ${outcome.winner ? outcome.winner + ' wins' : 'draw'}`, [...board]);
   } else { turn = Rules.other(turn); sound('place'); }
   render(); scheduleAI();
@@ -210,6 +237,7 @@ function makeMove(index) {
   else if (!isComputerTurn() && document.activeElement?.classList.contains('cell')) cells.find(cell => !cell.disabled)?.focus({preventScroll: true});
 }
 function startRound() {
+  screen = 'game'; history = [];
   $('boot').hidden = true;
   cancelAI(); clearRoundFeedback();
   if (champion()) { scores.reset(); round = 1; starter = 'X'; }
@@ -221,6 +249,7 @@ function startRound() {
   scheduleAI();
 }
 function freshSession() {
+  screen = 'game'; history = [];
   $('boot').hidden = true;
   cancelAI(); clearRoundFeedback(); scores.reset();
   board = Array(9).fill(''); starter = turn = 'X'; round = 1; phase = 'ready';
@@ -238,7 +267,12 @@ cells.forEach((cell, index) => {
     }
   });
 });
-$('start').addEventListener('click', () => { unlockAudio(); startRound(); });
+$('start').addEventListener('click', () => {
+  unlockAudio();
+  if (screen === 'title') { freshSession(); $('mode').focus(); }
+  else if (phase === 'playing' && $('setup').open) { $('setup').open = false; render(); scheduleAI(); }
+  else startRound();
+});
 $('reset').addEventListener('click', () => { unlockAudio(); freshSession(); sound('click'); });
 for (const key of ['mode','difficulty','humanMark','format']) $(key).addEventListener('change', () => {
   preferences[key] = $(key).value; savePreferences(); freshSession(); unlockAudio(); sound('click');
@@ -246,10 +280,55 @@ for (const key of ['mode','difficulty','humanMark','format']) $(key).addEventLis
 document.querySelectorAll('button[data-shell]').forEach(button => button.addEventListener('click', () => {
   preferences.shell = button.dataset.shell; savePreferences(); applyAppearance(); unlockAudio(); sound('click');
 }));
-$('sound').addEventListener('click', () => {
-  preferences.sound = !preferences.sound; savePreferences(); applyAppearance();
-  if (preferences.sound) { unlockAudio(); sound('click'); } else stopSound();
+// 5. NAVIGATION AND LEARNING TOOLS. None change the standard win rules.
+$('volume').addEventListener('change', () => {
+  preferences.sound = $('volume').value !== 'off';
+  if (preferences.sound) preferences.volume = $('volume').value;
+  savePreferences(); applyAppearance(); stopSound(); unlockAudio(); sound('click');
 });
+$('setup').addEventListener('toggle', () => {
+  if (phase === 'playing') {
+    if ($('setup').open) { cancelAI(); clearHint(); stopSound(); }
+    render();
+    if (!$('setup').open) scheduleAI();
+  } else render();
+});
+$('hint').addEventListener('click', () => {
+  if ($('hint').disabled) return;
+  clearHint(); hintIndex = Rules.choose(board, turn, 'hard'); render();
+  hintTimer = setTimeout(() => { clearHint(); render(); }, 2200);
+});
+$('undo').addEventListener('click', () => {
+  if ($('undo').disabled) return;
+  cancelAI(); clearRoundFeedback();
+  const outcome = Rules.result(board);
+  if (phase === 'finished') {
+    if (outcome.winner) scores[outcome.winner] -= 1;
+    else if (outcome.draw) scores.draws -= 1;
+  }
+  const previous = history.pop();
+  board = [...previous.board]; turn = previous.turn; phase = 'playing';
+  render(); cells.find(cell => !cell.disabled)?.focus({preventScroll:true});
+});
+function returnToTitle() {
+  leaving = false;
+  freshSession(); screen = 'title'; $('setup').open = false;
+  render(); $('start').focus({preventScroll:true});
+}
+$('toTitle').addEventListener('click', () => {
+  if (phase === 'playing') {
+    leaving = true; cancelAI(); clearHint(); stopSound(); render();
+    $('leaveDialog').showModal(); $('stay').focus();
+  } else returnToTitle();
+});
+$('stay').addEventListener('click', () => $('leaveDialog').close());
+$('leave').addEventListener('click', () => { returnToTitle(); $('leaveDialog').close(); });
+$('leaveDialog').addEventListener('close', () => {
+  leaving = false; render(); scheduleAI();
+});
+$('rematch').addEventListener('click', () => { unlockAudio(); startRound(); });
+$('matchSetup').addEventListener('click', () => { freshSession(); $('mode').focus(); });
+
 document.addEventListener('visibilitychange', () => {
   if (document.hidden) { cancelAI(); stopSound(); } else scheduleAI();
 });
