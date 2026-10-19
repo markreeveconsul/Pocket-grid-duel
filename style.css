@@ -8,3 +8,20 @@
 @keyframes place{from{opacity:.2;transform:scale(.88)}to{opacity:1;transform:scale(1)}}@keyframes draw-line{from{stroke-dashoffset:1}to{stroke-dashoffset:0}}
 @media(max-width:420px){body{padding:18px 12px}.console{padding:22px 17px;border-bottom-right-radius:50px}.shell-header{margin-bottom:17px}h1{font-size:23px}.eyebrow{font-size:8px;letter-spacing:1px}.bezel{padding:12px 12px 10px}.lcd{padding:12px 12px 0}.bezel-label{font-size:7px;letter-spacing:.7px}.controls{padding-top:17px}.start-button{min-width:143px;font-size:11px;padding:13px 15px}.button-row{gap:10px}.utility-button{font-size:8px;padding:8px 10px}.screen-top{font-size:8px}.ready strong{font-size:15px}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;scroll-behavior:auto!important}}
+
+/* Static CRT scanlines stay inside the LCD and never intercept clicks. */
+.lcd { isolation: isolate; }
+.lcd::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    to bottom,
+    transparent 0,
+    transparent 2px,
+    rgba(28, 43, 24, 0.13) 2px,
+    rgba(28, 43, 24, 0.13) 3px
+  );
+}
