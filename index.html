@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#e7dfcd">
+  <title>Grid Duel — Pocket Console</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="script.js" defer></script>
+</head>
+<body>
+  <main class="console" aria-labelledby="title">
+    <header class="shell-header">
+      <div><p class="eyebrow">GRID DUEL / CLASSIC EDITION</p><h1 id="title">Pocket Console<span>™</span></h1></div>
+      <span class="model" aria-hidden="true">GD<br>03</span>
+    </header>
+    <section class="bezel" aria-label="Game screen">
+      <div class="bezel-label"><span><i class="power-led" aria-hidden="true"></i> POWER</span><span>DOT MATRIX • 3 × 3</span></div>
+      <div class="lcd">
+        <div class="screen-top"><span id="modeLabel">SOLO / MEDIUM</span><span id="roundLabel">ROUND 01</span></div>
+        <div class="score-strip" aria-label="Session scores">
+          <div id="xScorePanel" class="score"><span id="xLabel">YOU / X</span><strong id="scoreX">00</strong></div>
+          <div class="score score-draw"><span>DRAWS</span><strong id="scoreDraw">00</strong></div>
+          <div id="oScorePanel" class="score"><span id="oLabel">CPU / O</span><strong id="scoreO">00</strong></div>
+        </div>
+        <div class="play-area">
+          <div id="board" class="board" role="group" aria-label="Tic-tac-toe board">
+            <button class="cell" data-index="0" aria-label="Row 1, column 1, empty"></button>
+            <button class="cell" data-index="1" aria-label="Row 1, column 2, empty"></button>
+            <button class="cell" data-index="2" aria-label="Row 1, column 3, empty"></button>
+            <button class="cell" data-index="3" aria-label="Row 2, column 1, empty"></button>
+            <button class="cell" data-index="4" aria-label="Row 2, column 2, empty"></button>
+            <button class="cell" data-index="5" aria-label="Row 2, column 3, empty"></button>
+            <button class="cell" data-index="6" aria-label="Row 3, column 1, empty"></button>
+            <button class="cell" data-index="7" aria-label="Row 3, column 2, empty"></button>
+            <button class="cell" data-index="8" aria-label="Row 3, column 3, empty"></button>
+          </div>
+          <svg class="win-overlay" viewBox="0 0 300 300" aria-hidden="true"><line id="winLine" pathLength="1"/></svg>
+          <div id="ready" class="ready"><strong>READY, PLAYER?</strong><span>Choose your setup.<br>Press START to play.</span></div>
+        </div>
+        <div class="status-bar"><span class="status-dot" aria-hidden="true"></span><p id="status" role="status" aria-live="polite" aria-atomic="true">Waiting for start</p></div>
+      </div>
+      <p class="bezel-foot">THREE IN A ROW. ONE MORE ROUND.</p>
+    </section>
+    <section class="controls" aria-label="Console controls">
+      <details id="setup" class="setup" open>
+        <summary>GAME SETUP <span aria-hidden="true">+</span></summary>
+        <div class="setup-fields">
+          <label>PLAYERS<select id="mode"><option value="solo">1 player · vs CPU</option><option value="duo">2 players · local</option></select></label>
+          <label>CPU LEVEL<select id="difficulty"><option value="easy">Easy</option><option value="medium" selected>Medium</option><option value="hard">Hard</option></select></label>
+        </div>
+        <p class="setup-note">Changing setup starts a fresh session.</p>
+      </details>
+      <div class="button-row">
+        <div class="reset-control"><button id="reset" class="utility-button">RESET SCORES</button><span>FRESH SESSION</span></div>
+        <button id="start" class="start-button"><span id="startLabel">START</span><span class="button-arrow" aria-hidden="true">▶</span></button>
+      </div>
+      <div class="bottom-row"><span class="edition">POCKET SERIES<br><b>NO. 001 — TIC-TAC-TOE</b></span><div class="speaker" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div></div>
+    </section>
+    <details class="instructions"><summary>HOW TO PLAY</summary><p>Take turns placing X and O. Connect three across, down, or diagonally to win. A full board without a winner is a draw. Marks stay on the board until the next round.</p><p>In solo play you are X. Round starters alternate; the CPU may open the next round. Easy plays randomly, Medium wins or blocks when possible, and Hard plans ahead.</p><p>Use a mouse, touch, or Tab and Enter. Arrow keys move between board squares. Scores last until you reset, change setup, or close the page.</p></details>
+  </main>
+  <footer class="desk-footer">A LITTLE FRIENDLY COMPETITION.</footer>
+</body>
+</html>
