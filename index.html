@@ -9,24 +9,17 @@
   <script src="script.js" defer></script>
 </head>
 <body>
-  <main class="console" aria-labelledby="title">
-    <header class="shell-header">
-      <div><p class="eyebrow">GRID DUEL / CLASSIC EDITION</p><h1 id="title">Pocket Console<span>™</span></h1></div>
-      <span class="model" aria-hidden="true">GD<br>03</span>
-    </header>
-    <section class="bezel" aria-label="Game screen">
-      <div class="bezel-label"><span><i class="power-led" aria-hidden="true"></i> POWER</span><span>DOT MATRIX • 3 × 3</span></div>
-      <div class="lcd">
+<div class="background-symbols" aria-hidden="true"><div class="bg-symbol sym-x">✕</div><div class="bg-symbol sym-o">◯</div><div class="bg-symbol sym-square">□</div><div class="bg-symbol sym-triangle">△</div><div class="bg-symbol sym-x2">✕</div><div class="bg-symbol sym-o2">◯</div></div>
+  <main class="console pocket-console" aria-labelledby="title">
+    <header class="console-header"><h1 id="title" class="brand-title">Pocket Console™</h1><span class="brand-model">GD-03</span></header>
+    <section class="bezel lcd-bezel" aria-label="Game screen">
+      <div class="lcd lcd-screen" id="lcd-screen">
         <div id="boot" class="boot" aria-hidden="true"><span>GD / 03</span><strong>POCKET<br>CONSOLE</strong><small>SYSTEM READY</small></div>
-        <section id="titleScreen" class="lcd-page title-page" aria-label="Title screen"><span class="cartridge-label">GRID DUEL / CLASSIC</span><h2>POCKET<br>CONSOLE</h2><div class="title-demo" aria-hidden="true"><span>×</span><span>○</span><span>×</span></div><p>THREE IN A ROW.<br>ONE MORE ROUND.</p><span class="press-start">PRESS START</span></section>
+        <section id="titleScreen" class="lcd-page title-page" aria-label="Title screen"><h2 class="lcd-modal-title">GRID DUEL</h2><p class="lcd-modal-text">THREE IN A ROW.<br>GET THREE BOXES ALIGNED TO WIN.<br><br>PRESS START TO PLAY</p><button id="titleStart" class="lcd-btn">PRESS START</button></section>
         <section id="matchScreen" class="lcd-page match-page" aria-label="Match result" hidden><span class="cartridge-label">MATCH COMPLETE</span><h2 id="matchWinner"></h2><p id="finalScore"></p><p id="matchDetail"></p><div class="lcd-actions"><button id="rematch">REMATCH</button><button id="matchSetup">SETUP</button></div></section>
         <div id="gameScreen">
         <div class="screen-top"><span id="modeLabel">SOLO / MEDIUM</span><span id="roundLabel">ROUND 01</span></div>
-        <div class="score-strip" aria-label="Session scores">
-          <div id="xScorePanel" class="score"><span id="xLabel">YOU / X</span><strong id="scoreX">00</strong><span id="pipsX" class="win-pips" aria-hidden="true"></span></div>
-          <div class="score score-draw"><span>DRAWS</span><strong id="scoreDraw">00</strong></div>
-          <div id="oScorePanel" class="score"><span id="oLabel">CPU / O</span><strong id="scoreO">00</strong><span id="pipsO" class="win-pips" aria-hidden="true"></span></div>
-        </div>
+        <div class="lcd-game-heading"><div class="game-subtitle">GRID DUEL / CLASSIC</div><div class="game-title">POCKET CONSOLE</div></div>
         <div class="play-area">
           <div id="board" class="board" role="group" aria-label="Tic-tac-toe board">
             <button class="cell" data-index="0" aria-label="Row 1, column 1, empty"></button>
@@ -43,10 +36,17 @@
           <div id="ready" class="ready"><strong>CHOOSE YOUR SETUP</strong><span>Set your players and format.<br>Press PLAY when ready.</span></div>
         </div>
         <div class="status-bar"><span class="status-dot" aria-hidden="true"></span><p id="status" role="status" aria-live="polite" aria-atomic="true">Waiting for start</p></div>
+        <div class="score-strip" aria-label="Session scores">
+          <div id="xScorePanel" class="score"><span id="xLabel">YOU / X</span><strong id="scoreX">00</strong><span id="pipsX" class="win-pips" aria-hidden="true"></span></div>
+          <div class="score score-draw"><span>DRAWS</span><strong id="scoreDraw">00</strong></div>
+          <div id="oScorePanel" class="score"><span id="oLabel">CPU / O</span><strong id="scoreO">00</strong><span id="pipsO" class="win-pips" aria-hidden="true"></span></div>
+        </div>
+
         </div>
       </div>
-      <p class="bezel-foot">THREE IN A ROW. ONE MORE ROUND.</p>
+
     </section>
+    <div class="console-controls"><div class="dpad-container" role="group" aria-label="Board navigation"><button id="padUp" class="dpad-btn dpad-up" aria-label="Select square above">▲</button><button id="padLeft" class="dpad-btn dpad-left" aria-label="Select square to the left">◀</button><button id="padPlace" class="dpad-btn dpad-center" aria-label="Place mark in selected square">●</button><button id="padRight" class="dpad-btn dpad-right" aria-label="Select square to the right">▶</button><button id="padDown" class="dpad-btn dpad-down" aria-label="Select square below">▼</button></div><div class="action-buttons-group"><button id="hardwareSetup" class="hardware-btn">SETUP</button><button id="start" class="hardware-btn"><span id="startLabel">START</span></button></div></div>
     <section class="controls" aria-label="Console controls">
       <details id="setup" class="setup" hidden>
         <summary>GAME SETUP <small id="setupSummary"></small><span aria-hidden="true">+</span></summary>
@@ -56,20 +56,18 @@
           <label>YOUR MARK<select id="humanMark"><option value="X">X · opens first</option><option value="O">O · CPU opens</option></select></label>
           <label>FORMAT<select id="format"><option value="endless">Endless rounds</option><option value="series">First to 3 wins</option></select></label>
         </div>
+      <div class="personalize"><div class="shell-picker" role="group" aria-label="Console shell color"><button class="swatch cream" data-shell="cream" aria-label="Cream shell" aria-pressed="true"></button><button class="swatch charcoal" data-shell="charcoal" aria-label="Charcoal shell" aria-pressed="false"></button><button class="swatch berry" data-shell="berry" aria-label="Berry shell" aria-pressed="false"></button><span>SHELL</span></div><label class="volume-label">SOUND<select id="volume" aria-label="Sound volume"><option value="off">Off</option><option value="low">Low</option><option value="normal">Normal</option></select></label></div>
+        <button id="reset" class="sound-button reset-option">RESET SCORES</button>
         <p class="setup-note">Changing setup starts a fresh session.</p>
       </details>
-      <div class="personalize"><div class="shell-picker" role="group" aria-label="Console shell color"><button class="swatch cream" data-shell="cream" aria-label="Cream shell" aria-pressed="true"></button><button class="swatch charcoal" data-shell="charcoal" aria-label="Charcoal shell" aria-pressed="false"></button><button class="swatch berry" data-shell="berry" aria-label="Berry shell" aria-pressed="false"></button><span>SHELL</span></div><label class="volume-label">SOUND<select id="volume" aria-label="Sound volume"><option value="off">Off</option><option value="low">Low</option><option value="normal">Normal</option></select></label></div>
+
       <div id="playTools" class="play-tools" hidden><button id="hint" class="sound-button">HINT</button><button id="undo" class="sound-button">UNDO</button><button id="toTitle" class="sound-button">TITLE</button></div><p id="assistNote" class="assist-note" hidden></p>
-      <div class="button-row">
-        <div class="reset-control"><button id="reset" class="utility-button">RESET SCORES</button><span>FRESH SESSION</span></div>
-        <button id="start" class="start-button"><span id="startLabel">START</span><span class="button-arrow" aria-hidden="true">▶</span></button>
-      </div>
       <p id="nextStarter" class="next-starter"></p>
-      <div class="bottom-row"><span class="edition">POCKET SERIES<br><b>NO. 001 — TIC-TAC-TOE</b></span><div class="speaker" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div></div>
+      <div class="speaker-grille" aria-hidden="true"><i class="speaker-slot"></i><i class="speaker-slot"></i><i class="speaker-slot"></i><i class="speaker-slot"></i></div>
     </section>
     <details class="instructions"><summary>HOW TO PLAY</summary><p>Take turns placing X and O. Connect three across, down, or diagonally to win. A full board without a winner is a draw. Marks stay on the board until the next round.</p><p>In solo play choose X or O. X opens the first round. Round starters alternate; the CPU may open the next round. Easy plays randomly, Medium wins or blocks when possible, and Hard plans ahead.</p><p>Use a mouse, touch, or Tab and Enter. Arrow keys move between board squares. First to 3 wins ends when either player earns three wins; draws do not count toward the target. Scores last until you reset, change game setup, or reload the page. Your preferences are remembered when browser storage is available. Shell and sound changes keep your scores.</p><p>Opening setup pauses play; close it or press RESUME to continue unchanged. HINT outlines a strong move in solo play. UNDO is available only in endless solo play and takes back your last move and the CPU reply. TITLE clears the session after confirmation during an unfinished round.</p></details>
   </main>
   <dialog id="leaveDialog" class="leave-dialog" aria-labelledby="leaveHeading"><h2 id="leaveHeading">Return to title?</h2><p>This ends the current session and clears its scores.</p><div><button id="stay">KEEP PLAYING</button><button id="leave">RETURN TO TITLE</button></div></dialog>
-  <footer class="desk-footer">A LITTLE FRIENDLY COMPETITION.</footer>
+
 </body>
 </html>

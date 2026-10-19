@@ -1,9 +1,9 @@
 # Grid Duel — Pocket Console
 
-A classic tic-tac-toe game inside a cream, charcoal, or berry handheld console. This is independent of the original cyberpunk game.
+A classic tic-tac-toe game inside the burgundy handheld design from grid_duel_pocket_console_edition.html, with optional cream and charcoal shells. This is independent of the original cyberpunk game.
 
 ## Open and play
-Double-click index.html. Keep index.html, style.css, and script.js together. No installation, internet, external fonts, server, or account is required.
+Double-click index.html. Keep index.html, style.css, and script.js together. No installation, server, or account is required. The reference design uses the Google Fonts Share Tech Mono and Cinzel; these need an internet connection on first load. Offline play still works with fallback fonts.
 
 The brief boot display leads to a dedicated title screen. START opens setup without starting a round. Choose players, CPU level, your mark, and match format, then press PLAY. In solo mode, choosing O lets the CPU play X first. The starter alternates after every completed round, including draws.
 
@@ -59,3 +59,6 @@ Variables: board, turn, phase. Conditionals: validation and results. Loops: winn
 
 ## Scope
 Standard 3 × 3 rules only. No Vanishing Marks, comeback mechanics, lightning, flames, board destruction, accounts, or database. Learning aids and first-to-three scoring are optional additions around the classic rules.
+
+## Reference interface update
+The burgundy shell, gold lettering, dark green LCD, colored marks, floating neon symbols, bezel, hardware buttons, and speaker slots come from the supplied reference design. SETUP opens the existing options drawer and pauses an active round. The D-pad selects an empty square; press its center to place your mark, or click/tap a square directly. All previous gameplay, hints, undo, matches, sound levels, and saved options remain available. The original reference file in Downloads is unchanged.
