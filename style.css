@@ -391,3 +391,8 @@ body[data-shell="charcoal"] .pocket-console{--console-bg:linear-gradient(135deg,
 
 /* The hardware SETUP button opens the options drawer. */
 .setup:not([open]) { display:none; }
+
+/* Additional neon symbols: staggered motion gives the background depth. */
+.extra-symbol { left:var(--sx); top:var(--sy); font-size:var(--size); color:var(--neon); opacity:.5; text-shadow:0 0 6px currentColor,0 0 19px currentColor; animation:neon-drift var(--duration) ease-in-out var(--delay) infinite alternate; }
+@keyframes neon-drift { 0% { transform:translate(-8px,12px) rotate(-12deg); } 50% { transform:translate(var(--drift),-24px) rotate(8deg); } 100% { transform:translate(5px,20px) rotate(-5deg); } }
+@media(max-width:600px) { .extra-symbol { opacity:.35; font-size:calc(var(--size) * .75); } }
